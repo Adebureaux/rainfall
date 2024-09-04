@@ -1,0 +1,14 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-x---+ 1 level1 users  747441 Mar  6  2016 level0
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+En lisant le pseudo-code C de la fonction "main" je remarque plusieurs choses:
+> le programme utilise la fonction atoi pour cree un entier a partir du premier argument passe (argv[1])
+> la condition "if (iVar1 == 0x1a7)" verifie si le resultat du atoi est egal a 0x1a7, soit 423 si on transforme en decimal
+> si la condition remplie, le programme lance un shell:
+local_20 = strdup("/bin/sh");
+execv("/bin/sh",&local_20);
+
+Il me suffit donc de lancer l'executable level0 avec comme argument 423
+./level0 423

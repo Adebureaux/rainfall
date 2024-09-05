@@ -1,0 +1,4 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-s---+ 1 level3 users  5403 Mar  6  2016 level2
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.

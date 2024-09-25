@@ -3,7 +3,7 @@ On a un executable qui se lance avec les droits de notre user cible:
 
 En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
 
-En examinant l'arbre des symbole, je remarque que:
+Je remarque que:
 > la fonction main appelle la fonction gets sur un buffer declare sur la stack "char local_50 [76];"
 > une fonction "run" est presente dans l'executable, celle-ci lance un shell "system("/bin/sh");"
 

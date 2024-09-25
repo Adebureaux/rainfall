@@ -1,0 +1,19 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-s---+ 1 level4 users  5366 Mar  6  2016 level3
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+Je remarque que:
+> la fonction main appelle une fonction qui s'appelle v
+> effectue un appel a fgets en passant un buffer de 520 caracteres
+> effectue un appel a printf non protege, il print directement le buffer sans passer par une "format string" (ex: printf("%s\n", buffer);)
+> effectue une comparaison avec la variable m et le nombre 0x40 (64), si elle est vraie, le programme lance un shell
+
+On peut exploiter cette vulnerabilite de printf en envoyant dans un payload:
+> l'adresse de la variable m au début du payload pour qu'elle soit traitee par le specificateur %n plus tard
+> en ajoutant un remplissage (%60x) pour imprimer 60 caractères supplementaires après l'adresse, ce qui porte le total à 64 caracteres (compte tenu des 4 octets de l'adresse initiale)
+
+Il faut ensuite connaitre ou les 4 premiers octets de l'adresse de m se trouve dans la stack avant l'appel a printf:
+> en ajoutant le specificateur %4$n qui demande a printf d'ecrire le nombre total de caracteres imprimes (64) à l'adresse specifiee par le quatrieme argument sur la stack, qui est l'adresse de m
+
+Ainsi, la condition m == 64 est verifiee et le programme lance le shell avec les droits du user level4

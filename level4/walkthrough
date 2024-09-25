@@ -1,0 +1,29 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-s---+ 1 level5 users  5252 Mar  6  2016 level4
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+Je remarque que:
+> la fonction n verifie si la variable m est egale a 0x1025544 (16,930,116 en decimal), si cette condition est vraie, la fonction print le flag
+> la fonction p utilise printf de maniere non securisee
+> avant d'etre appellee, il y a un fgets qui prend au maximum 512 caracteres
+
+Comme pour le level3, on peut exploiter cette vulnerabilite de printf en envoyant dans un payload:
+> l'adresse de la variable m au début du payload pour qu'elle soit traitee par le specificateur %n plus tard
+> en ajoutant un remplissage (%16930112x) pour imprimer 16930112 caractères supplementaires après l'adresse, ce qui porte le total à 16930116 caracteres (compte tenu des 4 octets de l'adresse initiale)
+
+
+Il faut ensuite connaitre ou les 4 premiers octets de l'adresse de m se trouve dans la stack avant l'appel a printf:
+> disas p
+> b *p+12
+> run
+> AAAA
+> x/20x $esp
+0xbffff3f0:     0xbffff420      0xb7ff26b0      0xbffff664      0xb7fd0ff4
+0xbffff400:     0x00000000      0x00000000      0xbffff628      0x0804848d
+0xbffff410:     0xbffff420      0x00000200      0xb7fd1ac0      0xb7ff37d0
+0xbffff420:     0x41414141      0xb7e2000a      0x00000001      0xb7fef305
+0xbffff430:     0xbffff488      0xb7fde2d4      0xb7fde334      0x00000007
+> en ajoutant le specificateur %12$n qui demande a printf d'ecrire le nombre total de caracteres imprimes à l'adresse specifiee par le douzieme argument sur la stack, qui est l'adresse de m
+
+Ainsi, la condition m == 16930116 est verifiee et le programme envoie le flag

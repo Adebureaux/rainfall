@@ -2,3 +2,17 @@ On a un executable qui se lance avec les droits de notre user cible:
 -rwsr-s---+ 1 level3 users  5403 Mar  6  2016 level2
 
 En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+Je remarque que:
+> la fonction main appelle une fonction qui s'appelle p
+> la fonction p declare un buffer de 76 caracteres sur la stack
+> effectue un appel a gets en passant le buffer
+> le buffer est ensuite passe a la fonction strdup qui va faire une allocation sur la heap
+
+Je dois donc creer un payload qui contiendra:
+> un shellcode
+> un padding
+> l'adresse renvoyee par strdup qui alloue la string sur la heap
+
+Lorsque la chaine malicieuse est passee, l'addresse de retour du programme est ecrasee par l'adresse de de retour de strdup. Ainsi, au lieu de quitter la fonction p et de finir l'execution du programme, l'executable va lire la chaine sur la heap et va executer le shellcode.
+

@@ -1,0 +1,14 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-s---+ 1 level6 users  5385 Mar  6  2016 level5
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+Je remarque que:
+
+
+> l'adresse de o est 0x080484a4
+
+
+> l'adresse de la fonction exit dans la GOT : 0x08049838
+objdump -R ./level5 | grep -w exit
+08049838 R_386_JUMP_SLOT   exit

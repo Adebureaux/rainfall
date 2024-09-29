@@ -1,0 +1,16 @@
+On a un executable qui se lance avec les droits de notre user cible:
+-rwsr-s---+ 1 level7 users  5274 Mar  6  2016 level6
+
+En copiant cet executable sur ma machine hote, je peux le passer au logiciel ghidra afin de l'analyser.
+
+Je remarque que:
+> la fonction n lance un cat sur le fichier qui contient le flag, son adresse est 0x08048454 (\x54\x84\x04\x08)
+> la fonction main fait un strcpy de la chaine passée en argument du programme, la chaine de destination est précedement alloué avec un malloc de 0x40, soit 64 en décimal
+
+En lisant le manuel de strcpy, je vois que si la chaîne destination de strcpy n'est pas assez grande, il est possible de faire un overflow.
+Il faut maintenant déterminer l'offset, j'ai donc 64 (+4 venant d'une autre allocation) (+4 venant du strcpy) soit 72 avant d'overflow
+Je vais donc placer 72 caracteres, puis placer l'adresse de n en little-endian
+
+En lançant le payload
+./level6 $(cat /tmp/exploit)
+j'obtiens le flag du level suivant

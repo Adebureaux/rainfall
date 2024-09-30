@@ -1,4 +1,4 @@
-undefined4 main(undefined4 param_1,int param_2)
+undefined4 main(undefined4 param_1,char **param_2)
 {
   undefined4 *puVar1;
   void *pvVar2;
@@ -15,6 +15,9 @@ undefined4 main(undefined4 param_1,int param_2)
   puVar3[1] = pvVar2;
   strcpy((char *)puVar1[1],*(char **)(param_2 + 4));
   strcpy((char *)puVar3[1],*(char **)(param_2 + 8));
+
+  strcpy((char *)puVar1[1],(param_2[1]));
+  strcpy((char *)puVar3[1],(param_2[2]));
   __stream = fopen("/home/user/level8/.pass","r");
   fgets(c,0x44,__stream);
   puts("~~");

